@@ -1,10 +1,7 @@
 from fastapi import FastAPI
-from app.routes import auth_router
+from app.routes import auth_router, events_router
 
 
 app = FastAPI()
 app.include_router(auth_router)
-
-@app.get("/")
-async def hello():
-    return "HELLO!"
+app.include_router(events_router)
