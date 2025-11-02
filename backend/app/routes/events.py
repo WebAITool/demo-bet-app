@@ -57,7 +57,6 @@ class EventUpdateIn(BaseModel):
 
 
 router = APIRouter(prefix="/events")
-my_events_router = APIRouter(prefix="/my")
 
 
 @router.get("/all")
@@ -89,7 +88,7 @@ async def get_event(event_id: Annotated[int, Path()]) -> FullEventOut:
     )
 
 
-@my_events_router.get("/all")
+@router.get("/my/all")
 async def get_my_events() -> list[MyEventOut]:
     return [
         MyEventOut(
@@ -107,15 +106,14 @@ async def get_my_events() -> list[MyEventOut]:
     ]
 
 
-@my_events_router.post("")
+@router.post("/my")
 async def create_event(event: CreateEventIn) -> Response:
     return Response()
 
 
-@my_events_router.patch("/{event_id}")
+@router.patch("/my/{event_id}")
 async def update_event(
-    event_id: Annotated[int, Path(allow_inf_nan=False, ge=1)], event_update: EventUpdateIn
+    event_id: Annotated[int, Path(allow_inf_nan=False, ge=1)],
+    event_update: EventUpdateIn,
 ) -> Response:
     return Response()
-
-router.include_router(my_events_router)
