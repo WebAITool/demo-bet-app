@@ -1,0 +1,155 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "any@test.local",
+      "login": "test",
+      "password": "anything",
+      "balance": 970
+    }
+  ],
+  "sessions": [
+    {
+      "id": "82fc2b6d-25ee-4714-ae8d-0cc3e670ef73",
+      "userId": 1,
+      "expiresAt": "2025-10-28T11:31:41.231Z"
+    },
+    {
+      "id": "f07e56f6-7a7a-443a-aaa9-14895a4a13aa",
+      "userId": 1,
+      "expiresAt": "2025-11-08T11:54:53.111Z"
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "name": "Футбольный матч: Спартак - Зенит",
+      "description": "Чемпионат России по футболу",
+      "ended_at": "2025-10-25T20:00:00Z",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 1,
+          "name": "Победа Спартака",
+          "coefficient": 2.1
+        },
+        {
+          "id": 2,
+          "name": "Ничья",
+          "coefficient": 3
+        },
+        {
+          "id": 3,
+          "name": "Победа Зенита",
+          "coefficient": 2.5
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "author_id": 1,
+      "name": "Тестовое событие",
+      "description": "Проверка ставок",
+      "ended_at": "2025-12-31 23:59:59",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 4,
+          "name": "П1",
+          "coefficient": 1.8
+        },
+        {
+          "id": 5,
+          "name": "П2",
+          "coefficient": 2.2
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "author_id": 1,
+      "name": "Тест",
+      "description": "Описание",
+      "ended_at": "2025-12-31 23:59:59",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 6,
+          "name": "П1",
+          "coefficient": 1.7
+        },
+        {
+          "id": 7,
+          "name": "Х",
+          "coefficient": 3.1
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "author_id": 1,
+      "name": "X",
+      "description": "",
+      "ended_at": "2025-12-31 23:59:59",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 8,
+          "name": "A",
+          "coefficient": 1.5
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "author_id": 1,
+      "name": "X",
+      "description": "",
+      "ended_at": "2025-12-31 23:59:59",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 9,
+          "name": "A",
+          "coefficient": 1.5
+        }
+      ]
+    }
+  ],
+  "bets": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "event_id": 2,
+      "outcome_id": 4,
+      "size": 10,
+      "amount": 10,
+      "coefficient": 1.8,
+      "created_at": "2025-11-01T12:12:10.369Z",
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "event_id": 2,
+      "outcome_id": 4,
+      "size": 10,
+      "amount": 10,
+      "coefficient": 1.8,
+      "created_at": "2025-11-04T12:17:59.523Z",
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "user_id": 1,
+      "event_id": 2,
+      "outcome_id": 4,
+      "size": 10,
+      "amount": 10,
+      "coefficient": 1.8,
+      "created_at": "2025-11-04T12:22:16.243Z",
+      "status": "pending"
+    }
+  ],
+  "verification_codes": []
+}
