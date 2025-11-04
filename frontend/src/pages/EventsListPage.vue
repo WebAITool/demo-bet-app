@@ -1,11 +1,33 @@
 <script setup>
-const events = [
-  { id: 1, title: 'Событие 1', endsAt: 'Сегодня 21:00' },
-  { id: 2, title: 'Событие 2', endsAt: 'Сегодня 22:30' },
-  { id: 3, title: 'Событие 3', endsAt: 'Завтра 19:00' },
-  { id: 4, title: 'Событие 4', endsAt: 'Завтра 20:15' },
-  { id: 5, title: 'Событие 5', endsAt: 'Через 2 дня 18:00' },
-]
+import { ref, onMounted } from 'vue'
+import { eventsApi } from '@/api/api'
+
+const loading = ref(true)
+const error = ref(null)
+const events = ref([])
+
+const load = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const { data } = await eventsApi.getAll()
+    events.value = Array.isArray(data) ? data : []
+  } catch (e) {
+    error.value = 'Не удалось загрузить события'
+  } finally {
+    loading.value = false
+  }
+}
+
+const formatDate = (v) => {
+  try {
+    return new Date(v).toLocaleString('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return v
+  }
+}
+
+onMounted(load)
 </script>
 
 <template>
@@ -13,7 +35,11 @@ const events = [
     <v-card elevation="2">
       <v-card-title class="text-h6">Список доступных для ставок событий</v-card-title>
       <v-divider />
-      <v-table density="comfortable" class="text-no-wrap">
+
+      <v-progress-linear v-if="loading" indeterminate color="primary" />
+      <v-alert v-else-if="error" type="error" density="comfortable">{{ error }}</v-alert>
+
+      <v-table v-else density="comfortable" class="text-no-wrap">
         <thead>
           <tr>
             <th class="text-left" style="width:45%">Название события</th>
@@ -22,17 +48,25 @@ const events = [
           </tr>
         </thead>
         <tbody>
-          <tr v-for="ev in events" :key="ev.id">
+          <tr v-for="ev in events" :key="ev.event_id">
             <td>
-              <router-link :to="{ name: 'EventDetails', params: { id: ev.id } }" class="text-decoration-none">
-                {{ ev.title }}
+              <router-link :to="{ name: 'EventDetails', params: { id: ev.event_id } }" class="text-decoration-none">
+                {{ ev.name }}
               </router-link>
             </td>
-            <td>{{ ev.endsAt }}</td>
+            <td>{{ formatDate(ev.ended_at) }}</td>
             <td class="text-right">
-              <v-btn variant="text" class="mr-1" color="primary" :to="{ name: 'EventDetails', params: { id: ev.id }, query: { outcome: 0 } }">Исход1 - коэф</v-btn>
-              <v-btn variant="text" class="mr-1" color="primary" :to="{ name: 'EventDetails', params: { id: ev.id }, query: { outcome: 1 } }">Исход2 - коэф</v-btn>
-              <v-btn variant="text" color="primary" :to="{ name: 'EventDetails', params: { id: ev.id }, query: { outcome: 2 } }">Исход3 - коэф</v-btn>
+              <v-chip
+                v-for="(o, idx) in ev.outcomes"
+                :key="idx"
+                class="ml-1"
+                size="small"
+                color="primary"
+                variant="outlined"
+                :to="{ name: 'EventDetails', params: { id: ev.event_id }, query: { outcome: idx } }"
+              >
+                {{ o.name }} — {{ Number(o.coefficient).toFixed(2) }}
+              </v-chip>
             </td>
           </tr>
         </tbody>
