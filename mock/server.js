@@ -1,10 +1,11 @@
 const jsonServer = require('json-server');
+const path = require('path');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const cookieParser = require('cookie-parser');
 
 const server = jsonServer.create();
-const router = jsonServer.router('db.json');
+const router = jsonServer.router(path.join(__dirname, 'db.json'));
 const middlewares = jsonServer.defaults();
 
 server.use((req, res, next) => {
@@ -154,6 +155,9 @@ const handleLogin = (body, res) => {
 
   return res.status(200).json({ message: 'Login successful' });
 };
+
+server.post('/auth/login', (req, res) => handleLogin(req.body, res));
+server.get('/auth/login', (req, res) => handleLogin(req.query, res));
 
 const authenticate = (req, res, next) => {
   const sessionId = req.cookies?.session_id || req.headers.authorization?.split(' ')[1];

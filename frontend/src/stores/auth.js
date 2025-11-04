@@ -1,104 +1,82 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { authApi } from '@/api/api';
+import { authApi, userApi } from '@/api/api';
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(localStorage.getItem('token') || null);
-  const user = ref(JSON.parse(localStorage.getItem('user') || 'null'));
-  const isAuthenticated = computed(() => !!token.value);
+  // Minimal cookie-session state
+  const isAuth = ref(false);
+  const loading = ref(false);
+  const error = ref(null);
+  const profile = ref(null); // optional user info (login/password from /user/info)
 
-  const setToken = (newToken) => {
-    token.value = newToken;
-    if (newToken) {
-      localStorage.setItem('token', newToken);
-    } else {
-      localStorage.removeItem('token');
-    }
-  };
+  const isAuthenticated = computed(() => isAuth.value === true);
 
-  const setUser = (userData) => {
-    user.value = userData;
-    if (userData) {
-      localStorage.setItem('user', JSON.stringify(userData));
-    } else {
-      localStorage.removeItem('user');
-    }
-  };
-
-  const login = async (credentials) => {
+  const init = async () => {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await authApi.login(credentials);
-      setToken(response.data.token);
-      setUser(response.data.user);
-      return response;
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
+      // If session cookie is valid, backend returns 200 and balance text
+      await userApi.getBalance();
+      isAuth.value = true;
+    } catch (e) {
+      isAuth.value = false;
+    } finally {
+      loading.value = false;
     }
   };
 
-  const register = async (userData) => {
+  const login = async ({ login, password }) => {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await authApi.register(userData);
-      return response;
-    } catch (error) {
-      console.error('Registration failed:', error);
-      throw error;
-    }
-  };
-
-  const verifyCode = async (email, code) => {
-    try {
-      const response = await authApi.verifyCode(email, code);
-      setToken(response.data.token);
-      setUser(response.data.user);
-      return response;
-    } catch (error) {
-      console.error('Verification failed:', error);
-      throw error;
+      await authApi.login({ login, password });
+      isAuth.value = true;
+      return true;
+    } catch (e) {
+      const status = e?.response?.status;
+      if (status === 400) error.value = 'Неверный пароль';
+      else if (status === 404) error.value = 'Пользователь не найден';
+      else error.value = 'Ошибка входа';
+      isAuth.value = false;
+      return false;
+    } finally {
+      loading.value = false;
     }
   };
 
   const logout = async () => {
+    // Mock has no server logout; just reset local state
     try {
       await authApi.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
     } finally {
-      setToken(null);
-      setUser(null);
+      isAuth.value = false;
+      profile.value = null;
+      error.value = null;
     }
   };
 
-  const init = () => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken) {
-      token.value = storedToken;
-    }
-    
-    if (storedUser) {
-      try {
-        user.value = JSON.parse(storedUser);
-      } catch (e) {
-        console.error('Failed to parse user data from localStorage', e);
-        localStorage.removeItem('user');
-      }
+  const loadProfile = async () => {
+    // Optional helper to fetch user info from /user/info
+    try {
+      const { data } = await userApi.getInfo();
+      profile.value = data;
+      return data;
+    } catch {
+      return null;
     }
   };
-
-  init();
 
   return {
-    token,
-    user,
+    // state
+    isAuth,
+    loading,
+    error,
+    profile,
     isAuthenticated,
+    // actions
+    init,
     login,
-    register,
-    verifyCode,
     logout,
-    setToken,
-    setUser,
+    loadProfile,
   };
 });
