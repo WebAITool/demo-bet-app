@@ -1,18 +1,22 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { eventsApi } from '@/api/api'
 
-const router = useRouter();
-const eventTitle = ref('');
-const newOutcome = ref('');
-const newCoefficient = ref('2.0');
-const eventDate = ref(new Date().toISOString().split('T')[0]);
-const eventTime = ref('12:00');
+const router = useRouter()
+const eventTitle = ref('')
+const eventDescription = ref('')
+const newOutcome = ref('')
+const newCoefficient = ref('2.0')
+const eventDate = ref(new Date().toISOString().split('T')[0])
+const eventTime = ref('12:00')
 const outcomes = ref([
   { id: 1, name: 'Исход 1', coefficient: 2.0 },
-  { id: 2, name: 'Исход 2', coefficient: 2.0 },
-  { id: 3, name: 'Исход 3', coefficient: 2.0 }
-]);
+  { id: 2, name: 'Исход 2', coefficient: 2.0 }
+])
+
+const loading = ref(false)
+const error = ref(null)
 
 const addOutcome = () => {
   const coefficient = parseFloat(newCoefficient.value);
@@ -33,59 +37,66 @@ const removeOutcome = (id) => {
   outcomes.value = outcomes.value.filter(outcome => outcome.id !== id);
 };
 
+const composeEndDate = (dateValue, timeValue) => {
+  const base = dateValue instanceof Date ? dateValue : new Date(dateValue)
+  if (isNaN(base.getTime())) return null
+  const [hours, minutes] = String(timeValue || '').split(':')
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate(), Number(hours || 0), Number(minutes || 0))
+}
+
 const formatDateTime = () => {
-  const [year, month, day] = eventDate.value.split('-');
-  const [hours, minutes] = eventTime.value.split(':');
-  const date = new Date(year, month - 1, day, hours, minutes);
-  
-  if (isNaN(date.getTime())) return 'Некорректная дата';
-  
-  const options = { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  };
-  return date.toLocaleString('ru-RU', options);
-};
+  const date = composeEndDate(eventDate.value, eventTime.value)
+  if (!date) return 'Некорректная дата'
+  return date.toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
 
-const createEvent = () => {
+const createEvent = async () => {
   if (!eventTitle.value.trim() || outcomes.value.length < 2) {
-    alert('Пожалуйста, укажите название события и минимум 2 исхода');
-    return;
-  }
-  
-  const [year, month, day] = eventDate.value.split('-');
-  const [hours, minutes] = eventTime.value.split(':');
-  const endsAtDate = new Date(year, month - 1, day, hours, minutes);
-  
-  if (endsAtDate < new Date()) {
-    alert('Дата окончания не может быть в прошлом');
-    return;
+    error.value = 'Укажите название и минимум 2 исхода'
+    return
   }
 
-  const events = JSON.parse(localStorage.getItem('myEvents') || '[]');
-  
-  const newEvent = {
-    id: Date.now(),
-    title: eventTitle.value,
-    outcomes: [...outcomes.value],
-    endsAt: endsAtDate.toISOString(),
-    status: 'editing'
-  };
+  const endedAt = composeEndDate(eventDate.value, eventTime.value)
+  if (endedAt < new Date()) {
+    error.value = 'Дата окончания не может быть в прошлом'
+    return
+  }
 
-  events.push(newEvent);
-  localStorage.setItem('myEvents', JSON.stringify(events));
-  
-  router.push({ name: 'MyEvents' });
-};
+  loading.value = true
+  error.value = null
+  try {
+    const payload = {
+      name: eventTitle.value.trim(),
+      description: eventDescription.value.trim(),
+      ended_at: endedAt.toISOString(),
+      outcomes: outcomes.value.map(o => ({ name: o.name, coefficient: Number(o.coefficient) }))
+    }
+    const { data } = await eventsApi.createMy(payload)
+    router.push({ name: 'MyEvents' })
+  } catch (e) {
+    if (e?.response?.status === 422) {
+      error.value = 'Проверьте корректность полей (название, коэффициенты > 0)'
+    } else {
+      error.value = 'Не удалось создать событие'
+    }
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
   <v-container class="py-8">
     <h1 class="mb-4">Создание события</h1>
-    
+    <v-text-field
+      v-model="eventDescription"
+      label="Описание (необязательно)"
+      class="mb-4"
+      variant="outlined"
+    />
+
+    <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
+
     <v-text-field
       v-model="eventTitle"
       label="Название события"
@@ -191,7 +202,8 @@ const createEvent = () => {
       <v-btn 
         color="primary"
         @click="createEvent"
-        :disabled="!eventTitle.trim() || outcomes.length < 2"
+        :disabled="loading || !eventTitle.trim() || outcomes.length < 2"
+        :loading="loading"
       >
         Создать событие
       </v-btn>

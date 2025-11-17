@@ -3,8 +3,8 @@
     {
       "id": 1,
       "email": "any@test.local",
-      "login": "test",
-      "password": "anything",
+      "login": "new_login",
+      "password": "new_pass",
       "balance": 70
     }
   ],
@@ -98,6 +98,26 @@
       "id": "5ee06189-4656-43ca-b86e-439d50be0cc4",
       "userId": 1,
       "expiresAt": "2025-11-11T14:26:08.692Z"
+    },
+    {
+      "id": "1d272ac6-0847-4199-88d3-1400f28558e3",
+      "userId": 1,
+      "expiresAt": "2025-11-18T11:22:54.609Z"
+    },
+    {
+      "id": "967271c9-92a8-43c6-938f-c49bd76c70fe",
+      "userId": 1,
+      "expiresAt": "2025-11-18T11:22:54.612Z"
+    },
+    {
+      "id": "b6999ad7-7d80-4e2b-8f75-b3c17a3d2ffe",
+      "userId": 1,
+      "expiresAt": "2025-11-18T11:26:41.019Z"
+    },
+    {
+      "id": "13c1a672-26f6-4fc3-a257-e319dfacf800",
+      "userId": 1,
+      "expiresAt": "2025-11-18T11:26:41.021Z"
     }
   ],
   "events": [
@@ -192,6 +212,71 @@
           "id": 9,
           "name": "A",
           "coefficient": 1.5
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "author_id": 1,
+      "name": "Проверка",
+      "description": "Тест",
+      "ended_at": "2025-11-11T12:44:07.926Z",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 10,
+          "name": "A",
+          "coefficient": 1.5
+        },
+        {
+          "id": 11,
+          "name": "B",
+          "coefficient": 2.1
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "author_id": 1,
+      "name": "Новое событие для теста",
+      "description": "пу-пу-пу",
+      "ended_at": "2025-11-12T07:50:00.000Z",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 12,
+          "name": "Исход 1",
+          "coefficient": 2
+        },
+        {
+          "id": 13,
+          "name": "Исход 2",
+          "coefficient": 2
+        },
+        {
+          "id": 14,
+          "name": "Тестовый исход",
+          "coefficient": 2.71
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "author_id": 1,
+      "name": "Test",
+      "description": "Demo",
+      "ended_at": "2025-11-17T22:09:26.209Z",
+      "final_outcome_id": null,
+      "outcomes": [
+        {
+          "id": 15,
+          "name": "A",
+          "coefficient": 1.5
+        },
+        {
+          "id": 16,
+          "name": "B",
+          "coefficient": 2.1
         }
       ]
     }

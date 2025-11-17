@@ -1,58 +1,42 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, onActivated } from 'vue'
+import { useRouter } from 'vue-router'
+import { eventsApi } from '@/api/api'
 
-const router = useRouter();
+const router = useRouter()
 
-// Состояния события:
-// 1. 'editing' - можно редактировать (время ставок не закончилось)
-// 2. 'setting_outcome' - нужно задать исход (время ставок закончилось, но исход не задан)
-// 3. 'completed' - исход задан (показываем результат)
+const loading = ref(true)
+const error = ref(null)
+const events = ref([])
 
-const events = ref([]);
-
-onMounted(() => {
-  loadEvents();
-});
-
-const loadEvents = () => {
-  const savedEvents = localStorage.getItem('myEvents');
-  if (savedEvents) {
-    events.value = JSON.parse(savedEvents);
+const loadEvents = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const { data } = await eventsApi.getMy()
+    const arr = Array.isArray(data) ? data : []
+    events.value = arr.slice().sort((a, b) => (b.event_id ?? 0) - (a.event_id ?? 0))
+  } catch (e) {
+    error.value = 'Не удалось загрузить ваши события'
+  } finally {
+    loading.value = false
   }
-};
+}
 
-const formatDate = (dateString) => {
-  const options = { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  };
-  return new Date(dateString).toLocaleString('ru-RU', options);
-};
-
-const setOutcome = (event) => {
-  const outcome = prompt('Введите итоговый исход события:');
-  if (outcome) {
-    const updatedEvents = events.value.map(e => 
-      e.id === event.id ? { ...e, outcome, status: 'completed' } : e
-    );
-    
-    localStorage.setItem('myEvents', JSON.stringify(updatedEvents));
-    
-    const eventIndex = events.value.findIndex(e => e.id === event.id);
-    if (eventIndex !== -1) {
-      events.value[eventIndex].outcome = outcome;
-      events.value[eventIndex].status = 'completed';
-    }
+const formatDate = (v) => {
+  try {
+    return new Date(v).toLocaleString('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return v
   }
-};
+}
 
 const editEvent = (eventId) => {
-  router.push({ name: 'EditEvent', params: { id: eventId } });
-};
+  router.push({ name: 'EditEvent', params: { id: eventId } })
+}
+
+onMounted(loadEvents)
+onActivated(loadEvents)
 </script>
 
 <template>
@@ -60,56 +44,33 @@ const editEvent = (eventId) => {
     <v-card elevation="2">
       <v-card-title>Мои события</v-card-title>
       <v-divider />
-      <v-list>
-        <v-list-item v-for="event in events" :key="event.id">
-          <v-list-item-title>{{ event.title }}</v-list-item-title>
+
+      <v-progress-linear v-if="loading" indeterminate color="primary" />
+      <v-alert v-else-if="error" type="error">{{ error }}</v-alert>
+
+      <v-list v-else>
+        <v-list-item v-for="ev in events" :key="ev.event_id">
+          <v-list-item-title>{{ ev.name }}</v-list-item-title>
           <v-list-item-subtitle>
-            Окончание ставок: {{ formatDate(event.endsAt) }}
+            Окончание ставок: {{ formatDate(ev.ended_at) }}
           </v-list-item-subtitle>
-          
           <template #append>
-            <v-btn 
-              v-if="event.status === 'editing'"
-              class="mr-2" 
-              variant="tonal"
-              color="primary"
-              @click="editEvent(event.id)"
-            >
-              Изменить событие
-            </v-btn>
-            
-            <v-btn 
-              v-else-if="event.status === 'setting_outcome'"
-              class="mr-2" 
-              color="pink" 
-              variant="elevated"
-              @click="setOutcome(event)"
-            >
-              Задать исход
-            </v-btn>
-            
-            <div v-else-if="event.status === 'completed'" class="text-body-1">
-              Итоговый исход: {{ event.outcome }}
-            </div>
+            <v-btn color="primary" variant="tonal" class="mr-2" :to="{ name: 'EditEvent', params: { id: ev.event_id } }">Редактировать</v-btn>
+            <v-chip v-if="ev.final_outcome_name" color="green" variant="outlined">Итог: {{ ev.final_outcome_name }}</v-chip>
           </template>
         </v-list-item>
+        <v-list-item v-if="!events.length" title="Событий пока нет" />
       </v-list>
+
       <v-divider />
       <div class="pa-4 d-flex justify-end">
-        <v-btn color="indigo" :to="{ name: 'CreateEvent' }" prepend-icon="mdi-plus">
-          Создать событие
-        </v-btn>
+        <v-btn color="indigo" :to="{ name: 'CreateEvent' }" prepend-icon="mdi-plus">Создать событие</v-btn>
       </div>
     </v-card>
   </v-container>
 </template>
 
 <style scoped>
-.v-list-item {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.v-list-item:last-child {
-  border-bottom: none;
-}
+.v-list-item { border-bottom: 1px solid rgba(0,0,0,0.1); }
+.v-list-item:last-child { border-bottom: none; }
 </style>
