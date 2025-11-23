@@ -1,0 +1,48 @@
+services:
+  proxy:
+    build: ./proxy
+    profiles: ["api", "mock"]
+    ports:
+      - "8080:80"
+    
+    depends_on:
+      - frontend
+    
+
+  db:
+    image: postgres:15-alpine
+    profiles: ["api"]
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    profiles: ["api"]
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  mock:
+    build: ./mock
+    profiles: ["mock"]
+
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+
+volumes:
+  postgres_data:
