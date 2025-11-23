@@ -1,0 +1,96 @@
+* text=auto
+
+# --- Frontend (Vue, JS, HTML, CSS) ---
+*.js                  text eol=lf
+*.jsx                 text eol=lf
+*.ts                  text eol=lf
+*.tsx                 text eol=lf
+*.vue                 text eol=lf
+*.css                 text eol=lf
+*.scss                text eol=lf
+*.sass                text eol=lf
+*.less                text eol=lf
+*.html                text eol=lf
+*.json                text eol=lf
+*.md                  text eol=lf
+.editorconfig         text eol=lf
+.eslintrc             text eol=lf
+.prettierrc           text eol=lf
+
+# --- Backend (Python) ---
+*.py                  text eol=lf
+*.pyw                 text eol=lf
+*.wsgi                text eol=lf
+requirements.txt      text eol=lf
+Pipfile               text eol=lf
+poetry.lock           text eol=lf
+
+# --- Docker & Nginx & Configs ---
+Dockerfile            text eol=lf
+docker-compose.yml    text eol=lf
+.dockerignore         text eol=lf
+*.conf                text eol=lf
+*.config              text eol=lf
+*.ini                 text eol=lf
+*.yaml                text eol=lf
+*.yml                 text eol=lf
+*.toml                text eol=lf
+Makefile              text eol=lf
+
+# --- Shell Scripts (Linux/MacOS) ---
+*.sh                  text eol=lf
+
+# --- Windows Scripts ---
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+
+# --- Other ---
+
+# Images
+*.jpg       binary
+*.jpeg      binary
+*.png       binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.svg       text
+
+# Fonts
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.eot       binary
+*.otf       binary
+
+# Archives & Documents
+*.zip       binary
+*.tar.gz    binary
+*.rar       binary
+*.7z        binary
+*.pdf       binary
+*.doc       binary
+*.docx      binary
+*.xls       binary
+*.xlsx      binary
+
+# Python Compiled
+*.pyc       binary
+*.pyd       binary
+*.db        binary
+*.sqlite3   binary
+
+# LINGUIST (Для статистики GitHub/GitLab)
+
+# Frontend locks
+package-lock.json linguist-generated
+yarn.lock         linguist-generated
+pnpm-lock.yaml    linguist-generated
+
+# Minified files
+*.min.js          linguist-generated
+*.min.css         linguist-generated
+*.map             linguist-generated
+
+# Documentation assets
+docs/*            linguist-documentation
