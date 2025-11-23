@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel, EmailStr
 from app.models import User, Session, EmailCode
@@ -6,6 +6,7 @@ from app.database import get_db_session
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select, update
 from datetime import datetime, timedelta
+from http.cookies import SimpleCookie
 
 
 class UserRegistrationDto(BaseModel):
@@ -27,9 +28,26 @@ class UserLoginDto(BaseModel):
 router = APIRouter(prefix="/auth")
 
 
+async def session_auth(request: Request) -> None | int:  # for dependency inj
+    cookies_str = request.headers.get("Cookie")
+    if cookies_str is None:
+        return
+
+    cookies = SimpleCookie()
+    cookies.load(cookies_str)
+    session_id = int(cookies['sessionid'].value)
+    with get_db_session() as db_session:
+        session = db_session.get(Session, session_id)
+        if session is None:
+            return
+        user_id = session.user_id
+
+    return user_id
+
+
 @router.post("/register")
-# TODO: how to generate new codes?
 async def register(user_reg_dto: UserRegistrationDto) -> Response:
+    # TODO: how to generate new codes for existing user?
     new_user = User(
         login=user_reg_dto.login,
         password=user_reg_dto.password,
@@ -113,10 +131,10 @@ async def login(user_login_dto: UserLoginDto) -> Response:
 
         if user is None:
             return JSONResponse({"message": "Invalid login or password!"}, status_code=404)
-        
+
         new_session = Session(
             user_id=user.id, expires_at=datetime.now() + timedelta(days=30))
-        
+
         try:
             session.add(new_session)
             session.flush()
