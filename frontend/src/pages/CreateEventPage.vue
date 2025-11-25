@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { eventsApi } from '@/api/api'
+import BackButton from '@/components/BackButton.vue'
 
 const router = useRouter()
 const eventTitle = ref('')
@@ -87,6 +88,9 @@ const createEvent = async () => {
 
 <template>
   <v-container class="py-8">
+    <div class="mb-4">
+      <BackButton :fallback-to="{ name: 'MyEvents' }" />
+    </div>
     <h1 class="mb-4">Создание события</h1>
     <v-text-field
       v-model="eventDescription"

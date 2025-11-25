@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { userApi, betsApi } from '@/api/api'
+import BackButton from '@/components/BackButton.vue'
 
 const loading = ref(true)
 const error = ref(null)
@@ -29,6 +30,9 @@ onMounted(load)
 
 <template>
   <v-container class="py-8">
+    <div class="mb-4">
+      <BackButton :fallback-to="{ name: 'EventsList' }" />
+    </div>
     <v-row class="mb-6">
       <v-col cols="12" md="4">
         <v-btn block color="primary" variant="outlined" :to="{ name: 'AccountInfo' }" prepend-icon="mdi-account-circle" size="large">Личные данные</v-btn>

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { userApi } from '@/api/api'
+import BackButton from '@/components/BackButton.vue'
 
 const loading = ref(true)
 const error = ref(null)
@@ -58,6 +59,9 @@ onMounted(loadInfo)
 
 <template>
   <v-container class="py-8">
+    <div class="mb-4">
+      <BackButton :fallback-to="{ name: 'Account' }" />
+    </div>
     <v-card class="pa-6">
       <v-card-title class="text-h5 mb-6">Профиль</v-card-title>
       <v-divider class="mb-4" />

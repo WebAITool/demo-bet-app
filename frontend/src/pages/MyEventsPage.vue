@@ -2,6 +2,7 @@
 import { ref, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { eventsApi } from '@/api/api'
+import BackButton from '@/components/BackButton.vue'
 
 const router = useRouter()
 
@@ -41,6 +42,9 @@ onActivated(loadEvents)
 
 <template>
   <v-container class="py-8">
+    <div class="mb-4">
+      <BackButton :fallback-to="{ name: 'EventsList' }" />
+    </div>
     <v-card elevation="2">
       <v-card-title>Мои события</v-card-title>
       <v-divider />

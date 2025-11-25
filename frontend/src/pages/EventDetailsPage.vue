@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { eventsApi, betsApi } from '@/api/api'
+import BackButton from '@/components/BackButton.vue'
 
 const route = useRoute()
 const loading = ref(true)
@@ -99,6 +100,9 @@ onMounted(async () => {
 
 <template>
   <v-container class="py-8">
+    <div class="mb-4">
+      <BackButton :fallback-to="{ name: 'EventsList' }" />
+    </div>
     <v-progress-linear v-if="loading" indeterminate color="primary" />
     <v-alert v-else-if="error" type="error" class="mb-4">{{ error }}</v-alert>
 

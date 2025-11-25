@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { eventsApi } from '@/api/api'
+import BackButton from '@/components/BackButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -84,6 +85,9 @@ onMounted(loadEvent)
 
 <template>
   <v-container class="py-8">
+    <div class="mb-4">
+      <BackButton :fallback-to="{ name: 'MyEvents' }" />
+    </div>
     <h1 class="mb-4">Редактирование события</h1>
 
     <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
