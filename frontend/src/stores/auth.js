@@ -3,11 +3,10 @@ import { ref, computed } from 'vue';
 import { authApi, userApi } from '@/api/api';
 
 export const useAuthStore = defineStore('auth', () => {
-  // Minimal cookie-session state
   const isAuth = ref(false);
   const loading = ref(false);
   const error = ref(null);
-  const profile = ref(null); // optional user info (login/password from /user/info)
+  const profile = ref(null);
 
   const isAuthenticated = computed(() => isAuth.value === true);
 
@@ -15,7 +14,6 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     error.value = null;
     try {
-      // If session cookie is valid, backend returns 200 and balance text
       await userApi.getBalance();
       isAuth.value = true;
     } catch (e) {
@@ -45,7 +43,6 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const logout = async () => {
-    // Mock has no server logout; just reset local state
     try {
       await authApi.logout();
     } finally {
@@ -56,7 +53,6 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const loadProfile = async () => {
-    // Optional helper to fetch user info from /user/info
     try {
       const { data } = await userApi.getInfo();
       profile.value = data;
@@ -67,13 +63,11 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   return {
-    // state
     isAuth,
     loading,
     error,
     profile,
     isAuthenticated,
-    // actions
     init,
     login,
     logout,

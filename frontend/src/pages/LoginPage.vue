@@ -1,9 +1,10 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
+const route = useRoute();
 const auth = useAuthStore();
 const loginValue = ref('');
 const passwordValue = ref('');
@@ -12,6 +13,17 @@ const showPassword = ref(false);
 const onSubmit = async () => {
   const ok = await auth.login({ login: loginValue.value.trim(), password: passwordValue.value });
   if (ok) {
+    let next = route.query.next ?? ''
+    try {
+      if (typeof next === 'string') {
+        let decoded = decodeURIComponent(next)
+        if (decoded.startsWith('%2F')) decoded = decodeURIComponent(decoded)
+        if (decoded.startsWith('/')) {
+          await router.replace(decoded)
+          return
+        }
+      }
+    } catch (_) {}
     await router.replace({ name: 'EventsList' });
   }
 };

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import router from '@/router';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
@@ -17,7 +18,11 @@ api.interceptors.response.use(
         const authStore = useAuthStore();
         authStore.logout?.();
       } catch (_) {}
-      window.location.href = '/login';
+      const path = window.location.pathname + window.location.search + window.location.hash;
+      if (!window.location.pathname.startsWith('/auth')) {
+        const next = encodeURIComponent(path);
+        router.replace({ path: '/auth/login', query: { next } });
+      }
     }
     return Promise.reject(error);
   }

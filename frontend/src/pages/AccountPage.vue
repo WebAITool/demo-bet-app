@@ -34,10 +34,17 @@ onMounted(load)
         <v-btn block color="primary" variant="outlined" :to="{ name: 'AccountInfo' }" prepend-icon="mdi-account-circle" size="large">Личные данные</v-btn>
       </v-col>
       <v-col cols="12" md="4">
-        <v-card elevation="2" class="pa-4 d-flex align-center justify-space-between">
-          <div class="text-medium-emphasis">Баланс</div>
-          <div class="text-h6">{{ balance == null ? '—' : balance + ' Ф' }}</div>
-        </v-card>
+        <v-btn
+          block
+          variant="outlined"
+          color="info"
+          size="large"
+          prepend-icon="mdi-cash"
+          class="justify-space-between"
+        >
+          <span class="text-medium-emphasis">Баланс</span>
+          <span class="text-h6">{{ balance == null ? '—' : balance + ' Ф' }}</span>
+        </v-btn>
       </v-col>
       <v-col cols="12" md="4">
         <v-btn block color="pink-lighten-3" variant="outlined" prepend-icon="mdi-calendar" size="large" :to="{ name: 'MyEvents' }">Мои события</v-btn>
