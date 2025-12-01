@@ -4,6 +4,7 @@ from app.database import get_db_session
 from app.models import Session
 
 
+# TODO: add auth module
 async def session_auth(request: Request) -> int:  # for dependency inj
     cookies_str = request.headers.get("Cookie")
     if cookies_str is None:

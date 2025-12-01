@@ -64,7 +64,7 @@ async def register(user_reg_dto: UserRegistrationDto) -> Response:
 async def check_code(check_code: CheckCodeDto) -> Response:
     with get_db_session() as session:
         stmt = select(EmailCode).where(EmailCode.email ==
-                                       check_code.email and EmailCode.code == check_code.code)
+                                       check_code.email, EmailCode.code == check_code.code)
         email_code = session.execute(stmt).scalar()
 
         if email_code is None:
@@ -106,7 +106,7 @@ async def check_code(check_code: CheckCodeDto) -> Response:
 @router.get("/login")
 async def login(user_login_dto: UserLoginDto) -> Response:
     stmt = select(User).where(
-        User.login == user_login_dto.login and User.password == user_login_dto.password and User.is_confirmed)
+        User.login == user_login_dto.login, User.password == user_login_dto.password, User.is_confirmed)
     with get_db_session() as session:
         user = session.execute(stmt).scalar()
 
