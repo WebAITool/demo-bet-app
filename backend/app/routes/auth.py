@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel, EmailStr
 from app.models import User, Session, EmailCode
@@ -28,23 +28,6 @@ class UserLoginDto(BaseModel):
 router = APIRouter(prefix="/auth")
 
 
-async def session_auth(request: Request) -> None | int:  # for dependency inj
-    cookies_str = request.headers.get("Cookie")
-    if cookies_str is None:
-        return
-
-    cookies = SimpleCookie()
-    cookies.load(cookies_str)
-    session_id = int(cookies['sessionid'].value)
-    with get_db_session() as db_session:
-        session = db_session.get(Session, session_id)
-        if session is None:
-            return
-        user_id = session.user_id
-
-    return user_id
-
-
 @router.post("/register")
 async def register(user_reg_dto: UserRegistrationDto) -> Response:
     # TODO: how to generate new codes for existing user?
@@ -66,9 +49,8 @@ async def register(user_reg_dto: UserRegistrationDto) -> Response:
             session.flush()
         except IntegrityError:
             session.rollback()
-            return JSONResponse(
-                status_code=409, content={"message": "Email already in use!"}
-            )
+            raise HTTPException(
+                status_code=409, detail="Email already in use!")
         except:
             session.rollback()
             raise
@@ -86,9 +68,7 @@ async def check_code(check_code: CheckCodeDto) -> Response:
         email_code = session.execute(stmt).scalar()
 
         if email_code is None:
-            return JSONResponse(
-                {"message": "Can't find code for this email!"}, status_code=404
-            )
+            raise HTTPException(404, "Can't find code for this email!")
 
         stmt = select(User).where(User.email == email_code.email)
         user = session.execute(stmt).scalar_one()
@@ -118,8 +98,9 @@ async def check_code(check_code: CheckCodeDto) -> Response:
             session.commit()
 
         session.refresh(new_session)
-
-        return Response(headers={"Set-Cookie": "sessionid=" + str(new_session.id)})
+        response = Response()
+        response.set_cookie("sessionid", str(new_session.id))
+        return response
 
 
 @router.get("/login")
@@ -130,7 +111,7 @@ async def login(user_login_dto: UserLoginDto) -> Response:
         user = session.execute(stmt).scalar()
 
         if user is None:
-            return JSONResponse({"message": "Invalid login or password!"}, status_code=404)
+            raise HTTPException(404, "Invalid login or password!")
 
         new_session = Session(
             user_id=user.id, expires_at=datetime.now() + timedelta(days=30))
@@ -145,5 +126,6 @@ async def login(user_login_dto: UserLoginDto) -> Response:
             session.commit()
 
         session.refresh(new_session)
-
-        return Response(headers={"Set-Cookie": "sessionid=" + str(new_session.id)})
+        response = Response()
+        response.set_cookie("sessionid", str(new_session.id))
+        return response

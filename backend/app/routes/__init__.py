@@ -1,4 +1,4 @@
-from .auth import router as auth_router, session_auth
+from .auth import router as auth_router
 from .events import router as events_router
 from .bets import router as bets_router
 from .user import router as user_router
