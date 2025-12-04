@@ -103,7 +103,7 @@ async def check_code(check_code: CheckCodeDto) -> Response:
         return response
 
 
-@router.get("/login")
+@router.post("/login")
 async def login(user_login_dto: UserLoginDto) -> Response:
     stmt = select(User).where(
         User.login == user_login_dto.login, User.password == user_login_dto.password, User.is_confirmed)
