@@ -16,7 +16,7 @@ class SmallOutcomeDto(BaseModel):
 
 
 class FullOutcomeDto(BaseModel):
-    id: int
+    outcome_id: int
     name: str
     coefficient: Decimal
     total_size: int | None
@@ -92,7 +92,7 @@ async def get_event(event_id: Annotated[int, Path()]) -> FullEventDto:
             description=event.description,
             ended_at=event.ended_at,
             outcomes=[FullOutcomeDto(
-                id=outcome.id, name=outcome.name, coefficient=outcome.coefficient, total_size=None) for outcome in event.outcomes],
+                outcome_id=outcome.id, name=outcome.name, coefficient=outcome.coefficient, total_size=None) for outcome in event.outcomes],
         )
 
 
@@ -183,7 +183,7 @@ async def update_event(user_id: Annotated[int, Depends(session_auth)],
             raise HTTPException(400, "Time's up!")
 
         for outcome_dto in event_dto.outcomes:
-            stmt = update(Outcome).where(Outcome.id == outcome_dto.outcome_id and Outcome.event_id == event_id).values(
+            stmt = update(Outcome).where(Outcome.id == outcome_dto.outcome_id, Outcome.event_id == event_id).values(
                 coefficient=outcome_dto.coefficient)
             try:
                 affected_rows_count = db_session.execute(stmt).rowcount

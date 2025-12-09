@@ -11,8 +11,8 @@ router = APIRouter(prefix="/user")
 
 
 class UserInfoDto(BaseModel):
-    login: str
-    password: str
+    login: str | None
+    password: str | None
 
 
 @router.get("/balance")
@@ -32,11 +32,20 @@ async def get_info(user_id: Annotated[int, Depends(session_auth)]) -> UserInfoDt
 @router.post("/info")
 async def set_info(info: UserInfoDto, user_id: Annotated[int, Depends(session_auth)]) -> Response:
     with get_db_session() as db_session:
-        stmt = update(User).values(login=info.login, password=info.password)
-        if db_session.execute(stmt).rowcount != 1:
-            db_session.rollback()
-            raise HTTPException(500, "Internal server error!")
-        else:
-            db_session.commit()
+        if info.login is not None and len(info.login) > 0:
+            stmt = update(User).values(login=info.login)
+            if db_session.execute(stmt).rowcount != 1:
+                db_session.rollback()
+                raise HTTPException(500, "Internal server error!")
+            else:
+                db_session.commit()
+
+        if info.password is not None and len(info.password) > 0:
+            stmt = update(User).values(password=info.password)
+            if db_session.execute(stmt).rowcount != 1:
+                db_session.rollback()
+                raise HTTPException(500, "Internal server error!")
+            else:
+                db_session.commit()
 
     return Response()

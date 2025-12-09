@@ -44,7 +44,7 @@ const saveCoefficients = async () => {
   error.value = null
   message.value = null
   try {
-    const payload = { outcomes: outcomes.value.map(o => ({ outcome_id: o.outcome_id, coefficient: Number(o.coefficient) })) }
+    const payload = { final_outcome_id: null, outcomes: outcomes.value.map(o => ({ outcome_id: o.outcome_id, coefficient: Number(o.coefficient) })) }
     await eventsApi.updateEvent(eventId.value, payload)
     message.value = 'Коэффициенты обновлены'
     await loadEvent()
@@ -65,7 +65,7 @@ const setFinalOutcome = async () => {
   error.value = null
   message.value = null
   try {
-    await eventsApi.updateEvent(eventId.value, { final_outcome_id: finalOutcomeId.value })
+    await eventsApi.updateEvent(eventId.value, { final_outcome_id: finalOutcomeId.value, outcomes: [] })
     message.value = 'Финальный исход установлен'
     await loadEvent()
   } catch (e) {

@@ -41,7 +41,7 @@ const save = async () => {
   error.value = null
   message.value = null
   try {
-    const payload = {}
+    const payload = {"login": null, "password": null}
     if (editing.value === 'login') payload.login = String(temp.value).trim()
     if (editing.value === 'password') payload.password = String(temp.value)
     await userApi.updateInfo(payload)

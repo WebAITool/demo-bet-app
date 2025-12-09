@@ -48,6 +48,7 @@ const loadBettors = async () => {
   bettorsError.value = null
   if (eventData.value == null || selectedIdx.value == null) return
   const outcome = eventData.value.outcomes[selectedIdx.value]
+  console.log(outcome)
   if (!outcome) return
   bettorsLoading.value = true
   try {
